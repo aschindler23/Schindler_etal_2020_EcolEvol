@@ -1,0 +1,213 @@
+library(runjags)
+library(rjags)
+library(coda)
+lepc.ini<-read.csv("LEPC_count_data.csv") #load lepc data
+
+#input first and second visits
+visit.idx=rep(NA,17) #create vector of NAs
+visit.1=9999 #create 9999 placeholder
+
+for(j in 15:52){ 
+  sub.idx=subset(lepc.ini,lepc.ini$Year==j+1962) #subset years to 1977-2014
+  sub2.idx=subset(sub.idx,sub.idx$Visit==1) #subset visit 1
+  sub.order=sub2.idx[order(sub2.idx$Route),] #order by route
+  visit.idx[sub.order$Route]=sub.order$Count #insert count
+  visit.1=c(visit.1,visit.idx) #add year of count data as a column to the matrix
+  visit.idx=rep(NA,17) #reset to empty vector
+}
+visit.1=visit.1[-1] #drop initial 9999 placeholder
+
+visit.2=9999 #create new 9999 placeholder
+for(k in 15:52){
+  sub.idx=subset(lepc.ini,lepc.ini$Year==k+1962) #subset years to 1977-2014
+  sub2.idx=subset(sub.idx,sub.idx$Visit==2) #subset visit 2
+  sub.order=sub2.idx[order(sub2.idx$Route),] #order by route
+  visit.idx[sub.order$Route]=sub.order$Count #insert count
+  visit.2=c(visit.2,visit.idx) #add year's count data as a column to the matrix
+  visit.idx=rep(NA,17) #reset to empty vector
+}
+visit.2=visit.2[-1] #drop initial 9999 placeholder
+
+lepc.data=data.frame(route=rep(seq(1,17),38),visit1=visit.1,
+                    visit2=visit.2,Year=rep(1977:2014,each=17)) #combine two visits into single data frame
+
+#rearrange into an array
+y <- array(NA,dim=c(17,2,38)) #create empty array of size routes x visits x years
+for(k in 1:(length(y[1,1,]))){ #fill array with values from data frame
+  sel.rows <- lepc.data$Year == k+1976
+  y[,,k] <- as.matrix(lepc.data)[sel.rows,2:3]
+}
+
+y<-y[,,c(2:29,35:38)] #subset data to years with land cover data
+
+#PDSI data
+env.dat<-read.csv("LEPC_environmental_data.csv") #load full covariate data
+pdsi.ini<- env.dat[,c(1,2,9)]#subset to pdsi data
+
+pdsi.idx=rep(NA,17) #create empty vector
+pdsi.1=9999 #create 9999 placeholder
+
+for(j in 1:38){
+  sub.idx=subset(pdsi.ini,pdsi.ini$Year==j+1976) #subset years to 1977-2014
+  sub.order=sub.idx[order(sub.idx$Route),] #order by route
+  pdsi.idx[sub.order$Route]=sub.order$PDSI #insert PDSI values
+  pdsi.1=c(pdsi.1,pdsi.idx) #add year's PDSI values as a column to the matrix
+  pdsi.idx=rep(NA,17) #reset to empty vector
+}
+
+pdsi.1=pdsi.1[-1] #drop initial 9999 placeholder
+
+pdsi.data=data.frame(site=rep(seq(1,17),38),PDSI=pdsi.1,Year=rep(1977:2014,each=17)) #convert to data frame
+pdsi.data$PDSI<-scale(pdsi.data$PDSI, center = TRUE, scale = TRUE) #scale and center data
+
+pdsi <- matrix(NA,nrow=17,ncol=38) #create empty matrix of size routes x years
+for(k in 1:(length(pdsi[1,]))){ #fill matrix with values from data frame
+  sel.rows <- pdsi.data$Year == k+1976
+  pdsi[,k] <- as.matrix(pdsi.data)[sel.rows,2]
+}
+
+pdsi0<-pdsi[,1]
+pdsi<-pdsi[,c(2:29,35:38)] #subset data to years with land cover data
+
+#PCP data
+pcp.ini<-env.dat[,c(1,2,11)] #subset pcp data
+
+pcp.idx=rep(NA,17) #create empty vector
+pcp.1=9999 #create 9999 placeholder
+
+for(j in 1:38){
+  sub.idx=subset(pcp.ini,pcp.ini$Year==j+1976) #subset years to 1977-2014
+  sub.order=sub.idx[order(sub.idx$Route),] #order by route
+  pcp.idx[sub.order$Route]=sub.order$PCP #insert PCP values
+  pcp.1=c(pcp.1,pcp.idx) #add year's PCP values as a column to the matrix
+  pcp.idx=rep(NA,17) #reset to empty vector
+}
+
+pcp.1=pcp.1[-1] #drop initial 9999 placeholder
+
+pcp.data=data.frame(site=rep(seq(1,17),38),PCP=pcp.1,Year=rep(1977:2014,each=17)) #convert to data frame
+pcp.data$PCP<-scale(pcp.data$PCP, center = TRUE, scale = TRUE) #scale and center data
+
+pcp <- matrix(NA,nrow=17,ncol=38) #create empty matrix of size routes x years
+for(k in 1:(length(pcp[1,]))){ #fill matrix with values from data frame
+  sel.rows <- pcp.data$Year == k+1976
+  pcp[,k] <- as.matrix(pcp.data)[sel.rows,2]
+}
+
+pcp<-pcp[,c(2:29,35:38)] #subset data to years with land cover data
+
+#TMAX data
+tmax.ini<-env.dat[,c(1,2,10)] #subset tmax data
+
+tmax.idx=rep(NA,17) #create empty vector
+tmax.1=9999 #create 9999 placeholder
+
+for(j in 1:38){
+  sub.idx=subset(tmax.ini,tmax.ini$Year==j+1976) #subset years to 1977-2014
+  sub.order=sub.idx[order(sub.idx$Route),] #order by route
+  tmax.idx[sub.order$Route]=sub.order$TMAX #insert TMAX values
+  tmax.1=c(tmax.1,tmax.idx) #add year's TMAX values as a column to the matrix
+  tmax.idx=rep(NA,17) #reset to empty vector
+}
+
+tmax.1=tmax.1[-1] #drop initial 9999 placeholder
+
+tmax.data=data.frame(site=rep(seq(1,17),38),TMAX=tmax.1,Year=rep(1977:2014,each=17)) #convert to data frame
+tmax.data$TMAX<-scale(tmax.data$TMAX, center = TRUE, scale = TRUE) #scale and center data
+
+tmax <- matrix(NA,nrow=17,ncol=38) #create empty matrix of size sites x years
+for(k in 1:(length(tmax[1,]))){ #fill matrix with values from data frame
+  sel.rows <- tmax.data$Year == k+1976
+  tmax[,k] <- as.matrix(tmax.data)[sel.rows,2]
+}
+
+tmax0<-tmax[,1]
+tmax<-tmax[,c(2:29,35:38)] #subset data to years with land cover data
+
+#TMIN data
+tmin.ini<-env.dat[,c(1,2,12)] #subset tmin data
+
+tmin.idx=rep(NA,17) #create empty vector
+tmin.1=9999 #create 9999 placeholder
+
+for(j in 1:38){
+  sub.idx=subset(tmin.ini,tmin.ini$Year==j+1976) #subset years to 1977-2014
+  sub.order=sub.idx[order(sub.idx$Route),] #order by route
+  tmin.idx[sub.order$Route]=sub.order$TMIN #insert TMIN values
+  tmin.1=c(tmin.1,tmin.idx) #add year's TMIN values as a column to the matrix
+  tmin.idx=rep(NA,17) #reset to empty vector
+}
+
+tmin.1=tmin.1[-1] #drop initial 9999 placeholder
+
+tmin.data=data.frame(site=rep(seq(1,17),38),TMIN=tmin.1,Year=rep(1977:2014,each=17)) #convert to data frame
+tmin.data$TMIN<-scale(tmin.data$TMIN, center = TRUE, scale = TRUE) #scale and center data
+
+tmin <- matrix(NA,nrow=17,ncol=38) #create empty matrix of size route x years
+for(k in 1:(length(tmin[1,]))){ #fill matrix with values from data frame
+  sel.rows <- tmin.data$Year == k+1976
+  tmin[,k] <- as.matrix(tmin.data)[sel.rows,2]
+}
+
+tmin<-tmin[,c(2:29,35:38)] #subset data to years with land cover data
+
+#PLAND data
+pland.ini<-env.dat[,c(1,2,3)] #subset % grass data
+
+pland.idx=rep(NA,17) #create empty vector
+pland.1=9999 #create 9999 placeholder
+
+for(j in 1:38){
+  sub.idx=subset(pland.ini,pland.ini$Year==j+1976) #subset years to 1977-2014
+  sub.order=sub.idx[order(sub.idx$Route),] #order by site
+  pland.idx[sub.order$Route]=sub.order$GRASS_3km #insert % grass values
+  pland.1=c(pland.1,pland.idx) #add year's % grass values as a column to the matrix
+  pland.idx=rep(NA,17) #reset to empty vector
+}
+
+pland.1=pland.1[-1] #drop initial 9999 placeholder
+
+pland.data=data.frame(site=rep(seq(1,17),38),PLAND=pland.1,Year=rep(1977:2014,each=17)) #convert to data frame
+pland.data$GRASS_3km<-scale(pland.data$PLAND, center = TRUE, scale = TRUE) #scale and center data
+
+pland <- matrix(NA,nrow=17,ncol=38) #create empty matrix of size sites x years
+for(k in 1:(length(pland[1,]))){ #fill matrix with values from data frame
+  sel.rows <- pland.data$Year == k+1976
+  pland[,k] <- as.matrix(pland.data)[sel.rows,2]
+}
+
+pland<-pland[,c(2:29,35:38)] #subset data to years with land cover data
+
+
+nroute=nrow(y) #set R to number of rows in count data array to use in model text file
+nvisit=ncol(y) #set T to number of visits in count data array to use in model text file
+nyear=length(y[1,1,]) #set nyear to number of years in count data to use in model text file
+
+#for initial values for N
+y2 <- y
+y2[is.na(y2)]=0
+Nst <- apply(y2,c(1,3),max) + 1
+#for priors for threshold points
+l=min(pland)
+u=max(pland)
+
+#bundle data
+jags.data <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,pland=pland,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
+
+#initial values function
+inits <- function(){list(N=Nst,beta0=runif(1,-1,1),
+                         #phi=runif(1,0,3.5),delta=runif(1,-1,1),
+                         sd.p=runif(1,0,5),
+                         beta.p=runif(nyear,-1,1),
+                        .RNG.name="base::Super-Duper")}
+
+#list of parameters to model
+params <- c("beta0","beta1","beta2","beta3","beta4","beta5",
+            "delta","phi","sd.p","sd.mu","beta.p","over","totalN","fit","fit.new")
+
+output<-run.jags(data=jags.data,inits=inits,monitor=params,
+              model="threshold model example.txt",
+              n.chains=1,adapt=100,sample=100,burnin=200,
+             thin=5)
+
+save(output, file="lepc_pland_3k.RData")
