@@ -234,7 +234,7 @@ params <- c("beta0","beta1","beta2","beta3","beta4","beta5",
 # run % grass model
 pland.out<-run.jags(data=jags.data,inits=inits,monitor=params,
               model="pland_threshold_model.txt",
-              n.chains=1,adapt=100,sample=100,burnin=200,
+              n.chains=3,adapt=1000,sample=10000,burnin=200000,
              thin=5)
 
 save(pland.out, file="lepc_pland_3k.RData")
@@ -242,7 +242,7 @@ save(pland.out, file="lepc_pland_3k.RData")
 # run ED model
 ed.out<-run.jags(data=jags.data,inits=inits,monitor=params,
            model="ed_threshold_model.txt",
-           n.chains=1,adapt=100,sample=100,burnin=200,
+           n.chains=3,adapt=1000,sample=10000,burnin=200000,
            thin=5)
 
 save(ed.out, file="lepc_ed_3k.RData")
