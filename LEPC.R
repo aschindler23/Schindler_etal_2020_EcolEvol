@@ -166,7 +166,7 @@ for(j in 1:38){
 pland.1=pland.1[-1] # drop initial 9999 placeholder
 
 pland.data=data.frame(route=rep(seq(1,17),38),PLAND=pland.1,Year=rep(1977:2014,each=17)) # convert to data frame
-pland.data$GRASS_3km<-scale(pland.data$PLAND, center = TRUE, scale = TRUE) # scale and center data
+pland.data$PLAND<-scale(pland.data$PLAND, center = TRUE, scale = TRUE) # scale and center data
 
 pland <- matrix(NA,nrow=17,ncol=38) # create empty matrix of size routes x years
 for(k in 1:(length(pland[1,]))){ # fill matrix with values from data frame
