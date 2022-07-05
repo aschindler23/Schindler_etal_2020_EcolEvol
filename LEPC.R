@@ -214,12 +214,14 @@ y2[is.na(y2)]=0
 Nst <- apply(y2,c(1,3),max) + 1
 
 # lower/upper bounds for threshold point priors
-l=min(grass)
-u=max(grass)
+l.grass=min(grass)
+u.grass=max(grass)
+l.ed=min(ed)
+u.ed=max(ed)
 
 # bundle data
-jags.data.grass <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,grass=grass,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
-jags.data.ed <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,ed=ed,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
+jags.data.grass <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,grass=grass,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l.grass,u=u.grass)
+jags.data.ed <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,ed=ed,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l.ed,u=u.ed)
 
 # initial values function
 inits <- function(){list(N=Nst,beta0=runif(1,-1,1),
@@ -243,8 +245,7 @@ save(grass.out, file="lepc_grass_3k.RData")
 # run ED model
 ed.out<-run.jags(data=jags.data.ed,inits=inits,monitor=params,
            model="lepc_grpc_ed_threshold_model.txt",
-           n.chains=1,adapt=100,sample=100,burnin=200,
-           #n.chains=3,adapt=1000,sample=10000,burnin=200000,
+           n.chains=3,adapt=1000,sample=10000,burnin=200000,
            thin=5)
 
 save(ed.out, file="lepc_ed_3k.RData")
