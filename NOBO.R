@@ -27,7 +27,7 @@ for(k in 1:(length(y[1,]))){ # fill matrix with values from data frame
   y[,k] <- as.matrix(nobo.data)[sel.rows,2]
 }
 
-y<-y[,c(2:11,14:19)] # subset data to years with land cover data
+y<-y[,c(2:12,15:19)] # subset data to years with land cover data
 
 # PDSI data
 env.dat<-read.csv("nobo_environmental_data.csv") # load full environmental data
@@ -55,7 +55,7 @@ for(k in 1:(length(pdsi[1,]))){ # fill matrix with values from data frame
 }
 
 pdsi0<-pdsi[,1] # PDSI value for the summer preceding the first year of survey
-pdsi<-pdsi[,c(2:11,14:19)] # subset data to years with land cover data
+pdsi<-pdsi[,c(2:12,15:19)] # subset data to years with land cover data
 
 # PCP data
 pcp.ini<-env.dat[,c(1,2,11)] # subset PCP data
@@ -81,7 +81,7 @@ for(k in 1:(length(pcp[1,]))){ # fill matrix with values from data frame
   pcp[,k] <- as.matrix(pcp.data)[sel.rows,2]
 }
 
-pcp<-pcp[,c(2:11,14:19)] # subset data to years with land cover data
+pcp<-pcp[,c(2:12,15:19)] # subset data to years with land cover data
 
 # TMAX data
 tmax.ini<-env.dat[,c(1,2,10)] # subset TMAX data
@@ -108,7 +108,7 @@ for(k in 1:(length(tmax[1,]))){ # fill matrix with values from data frame
 }
 
 tmax0<-tmax[,1] # TMAX value for the summer preceding the first year of survey data
-tmax<-tmax[,c(2:11,14:19)] # subset data to years with land cover data
+tmax<-tmax[,c(2:12,15:19)] # subset data to years with land cover data
 
 # TMIN data
 tmin.ini<-env.dat[,c(1,2,12)] # subset TMIN data
@@ -134,7 +134,7 @@ for(k in 1:(length(tmin[1,]))){ # fill matrix with values from data frame
   tmin[,k] <- as.matrix(tmin.data)[sel.rows,2]
 }
 
-tmin<-tmin[,c(2:11,14:19)] # subset data to years with land cover data
+tmin<-tmin[,c(2:12,15:19)] # subset data to years with land cover data
 
 # GRASS data
 grass.ini<-env.dat[,c(1,2,3)] # subset % grass data 
@@ -161,7 +161,7 @@ for(k in 1:(length(grass[1,]))){ # fill matrix with values from data frame
   grass[,k] <- as.matrix(grass.data)[sel.rows,2]
 }
 
-grass<-grass[,c(2:11,14:19)] # subset data to years with land cover data
+grass<-grass[,c(2:12,15:19)] # subset data to years with land cover data
 
 # ED data
 ed.ini<-env.dat[,c(1,2,6)] # subset % grass data 
@@ -188,7 +188,7 @@ for(k in 1:(length(ed[1,]))){ # fill matrix with values from data frame
   ed[,k] <- as.matrix(ed.data)[sel.rows,2]
 }
 
-ed<-ed[,c(2:11,14:19)] # subset data to years with land cover data
+ed<-ed[,c(2:12,15:19)] # subset data to years with land cover data
 
 # set up indexing 
 nroute=nrow(y) # number of rows in count data array to use in model text file
