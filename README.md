@@ -12,7 +12,9 @@ To run the models described in the manuscript, use the R code with the correspon
 - NOBO: northern bobwhite
 - RNEP: ring-necked pheasant
 
-The .txt files contain the JAGS model code for either the % grassland cover (pland) or edge density (ed) models.
+The .txt files contain the JAGS model code for either the % grassland cover (grass) or edge density (ed) models. Use the .txt files with the corresponding prefixes:
+- lepc_grpc*: lesser and greater prairie-chicken models
+- nobo_rnep*: northern bobwhite and ring-necked pheasant models
 
 All data from the analyses is contained in the data folder.
 
