@@ -149,32 +149,32 @@ for(k in 1:(length(tmin[1,]))){ # fill matrix with values from data frame
 
 tmin<-tmin[,c(2:29,35:38)] # subset data to years with land cover data
 
-# PLAND data
-pland.ini<-env.dat[,c(1,2,3)] # subset % grass data 
+# GRASS data
+grass.ini<-env.dat[,c(1,2,3)] # subset % grass data 
 # (use column 3 for 3km buffer, 4 for 5km buffer, or 5 for 10km buffer)
 
-pland.idx=rep(NA,17) # create empty vector
-pland.1=9999 # create 9999 placeholder
+grass.idx=rep(NA,17) # create empty vector
+grass.1=9999 # create 9999 placeholder
 
 for(j in 1:38){
-  sub.idx=subset(pland.ini,pland.ini$Year==j+1976) # subset years to 1977-2014
+  sub.idx=subset(grass.ini,grass.ini$Year==j+1976) # subset years to 1977-2014
   sub.order=sub.idx[order(sub.idx$Route),] # order by route
-  pland.idx[sub.order$Route]=sub.order$GRASS_3km # insert % grass values
-  pland.1=c(pland.1,pland.idx) # add year's % grass values as a column to the matrix
-  pland.idx=rep(NA,17) # reset to empty vector
+  grass.idx[sub.order$Route]=sub.order$GRASS_3km # insert % grass values
+  grass.1=c(grass.1,grass.idx) # add year's % grass values as a column to the matrix
+  grass.idx=rep(NA,17) # reset to empty vector
 }
-pland.1=pland.1[-1] # drop initial 9999 placeholder
+grass.1=grass.1[-1] # drop initial 9999 placeholder
 
-pland.data=data.frame(route=rep(seq(1,17),38),PLAND=pland.1,Year=rep(1977:2014,each=17)) # convert to data frame
-pland.data$PLAND<-scale(pland.data$PLAND, center = TRUE, scale = TRUE) # scale and center data
+grass.data=data.frame(route=rep(seq(1,17),38),GRASS=grass.1,Year=rep(1977:2014,each=17)) # convert to data frame
+grass.data$GRASS<-scale(grass.data$GRASS, center = TRUE, scale = TRUE) # scale and center data
 
-pland <- matrix(NA,nrow=17,ncol=38) # create empty matrix of size routes x years
-for(k in 1:(length(pland[1,]))){ # fill matrix with values from data frame
-  sel.rows <- pland.data$Year == k+1976
-  pland[,k] <- as.matrix(pland.data)[sel.rows,2]
+grass <- matrix(NA,nrow=17,ncol=38) # create empty matrix of size routes x years
+for(k in 1:(length(grass[1,]))){ # fill matrix with values from data frame
+  sel.rows <- grass.data$Year == k+1976
+  grass[,k] <- as.matrix(grass.data)[sel.rows,2]
 }
 
-pland<-pland[,c(2:29,35:38)] # subset data to years with land cover data
+grass<-grass[,c(2:29,35:38)] # subset data to years with land cover data
 
 # ED data
 ed.ini<-env.dat[,c(1,2,6)] # subset % grass data 
@@ -214,11 +214,12 @@ y2[is.na(y2)]=0
 Nst <- apply(y2,c(1,3),max) + 1
 
 # lower/upper bounds for threshold point priors
-l=min(pland)
-u=max(pland)
+l=min(grass)
+u=max(grass)
 
 # bundle data
-jags.data <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,pland=pland,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
+jags.data.grass <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,grass=grass,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
+jags.data.ed <- list(y=y,pdsi=pdsi,pdsi0=pdsi0,pcp=pcp,tmax=tmax,tmax0=tmax0,tmin=tmin,ed=ed,nroute=nroute,nvisit=nvisit,nyear=nyear,l=l,u=u)
 
 # initial values function
 inits <- function(){list(N=Nst,beta0=runif(1,-1,1),
@@ -232,17 +233,18 @@ params <- c("beta0","beta1","beta2","beta3","beta4","beta5",
             "delta","phi","sd.p","sd.mu","beta.p","over","totalN","fit","fit.new")
 
 # run % grass model
-pland.out<-run.jags(data=jags.data,inits=inits,monitor=params,
-              model="pland_threshold_model.txt",
+grass.out<-run.jags(data=jags.data.grass,inits=inits,monitor=params,
+              model="lepc_grpc_grass_threshold_model.txt",
               n.chains=3,adapt=1000,sample=10000,burnin=200000,
-             thin=5)
+              thin=5)
 
-save(pland.out, file="lepc_pland_3k.RData")
+save(grass.out, file="lepc_grass_3k.RData")
 
 # run ED model
-ed.out<-run.jags(data=jags.data,inits=inits,monitor=params,
-           model="ed_threshold_model.txt",
-           n.chains=3,adapt=1000,sample=10000,burnin=200000,
+ed.out<-run.jags(data=jags.data.ed,inits=inits,monitor=params,
+           model="lepc_grpc_ed_threshold_model.txt",
+           n.chains=1,adapt=100,sample=100,burnin=200,
+           #n.chains=3,adapt=1000,sample=10000,burnin=200000,
            thin=5)
 
 save(ed.out, file="lepc_ed_3k.RData")
