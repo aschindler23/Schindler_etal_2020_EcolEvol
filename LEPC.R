@@ -186,7 +186,7 @@ ed.1=9999 # create 9999 placeholder
 for(j in 1:37){
   sub.idx=subset(ed.ini,ed.ini$Year==j+1977) # subset years to 1977-2014
   sub.order=sub.idx[order(sub.idx$Route),] # order by route
-  ed.idx[sub.order$route]=sub.order$ED # insert % grass values
+  ed.idx[sub.order$Route]=sub.order$ED # insert % grass values
   ed.1=c(ed.1,ed.idx) # add year's % grass values as a column to the matrix
   ed.idx=rep(NA,17) # reset to empty vector
 }
