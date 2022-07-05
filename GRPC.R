@@ -58,7 +58,7 @@ for(j in 1:38){
 }
 pdsi.1=pdsi.1[-1] # drop initial 9999 placeholder
 
-pdsi.data=data.frame(site=rep(seq(1,33),38),PDSI=pdsi.1,Year=rep(1977:2014,each=33)) # convert to data frame
+pdsi.data=data.frame(route=rep(seq(1,33),38),PDSI=pdsi.1,Year=rep(1977:2014,each=33)) # convert to data frame
 pdsi.data$PDSI<-scale(pdsi.data$PDSI, center = TRUE, scale = TRUE) # scale and center data
 
 pdsi <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size routes x years
@@ -85,7 +85,7 @@ for(j in 1:38){
 }
 pcp.1=pcp.1[-1] # drop initial 9999 placeholder
 
-pcp.data=data.frame(site=rep(seq(1,33),38),PCP=pcp.1,Year=rep(1977:2014,each=33)) # convert to data frame
+pcp.data=data.frame(route=rep(seq(1,33),38),PCP=pcp.1,Year=rep(1977:2014,each=33)) # convert to data frame
 pcp.data$PCP<-scale(pcp.data$PCP, center = TRUE, scale = TRUE) # scale and center data
 
 pcp <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size routes x years
@@ -111,10 +111,10 @@ for(j in 1:38){
 }
 tmax.1=tmax.1[-1] # drop initial 9999 placeholder
 
-tmax.data=data.frame(site=rep(seq(1,33),38),TMAX=tmax.1,Year=rep(1977:2014,each=33)) # convert to data frame
+tmax.data=data.frame(route=rep(seq(1,33),38),TMAX=tmax.1,Year=rep(1977:2014,each=33)) # convert to data frame
 tmax.data$TMAX<-scale(tmax.data$TMAX, center = TRUE, scale = TRUE) # scale and center data
 
-tmax <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size sites x years
+tmax <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size routes x years
 for(k in 1:(length(tmax[1,]))){ # fill matrix with values from data frame
   sel.rows <- tmax.data$Year == k+1976
   tmax[,k] <- as.matrix(tmax.data)[sel.rows,2]
@@ -138,7 +138,7 @@ for(j in 1:38){
 }
 tmin.1=tmin.1[-1] # drop initial 9999 placeholder
 
-tmin.data=data.frame(site=rep(seq(1,33),38),TMIN=tmin.1,Year=rep(1977:2014,each=33)) # convert to data frame
+tmin.data=data.frame(route=rep(seq(1,33),38),TMIN=tmin.1,Year=rep(1977:2014,each=33)) # convert to data frame
 tmin.data$TMIN<-scale(tmin.data$TMIN, center = TRUE, scale = TRUE) # scale and center data
 
 tmin <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size route x years
@@ -158,17 +158,17 @@ pland.1=9999 # create 9999 placeholder
 
 for(j in 1:38){
   sub.idx=subset(pland.ini,pland.ini$Year==j+1976) # subset years to 1977-2014
-  sub.order=sub.idx[order(sub.idx$Route),] # order by site
+  sub.order=sub.idx[order(sub.idx$Route),] # order by route
   pland.idx[sub.order$Route]=sub.order$GRASS_3km # insert % grass values
   pland.1=c(pland.1,pland.idx) # add year's % grass values as a column to the matrix
   pland.idx=rep(NA,33) # reset to empty vector
 }
 pland.1=pland.1[-1] # drop initial 9999 placeholder
 
-pland.data=data.frame(site=rep(seq(1,33),38),PLAND=pland.1,Year=rep(1977:2014,each=33)) # convert to data frame
+pland.data=data.frame(route=rep(seq(1,33),38),PLAND=pland.1,Year=rep(1977:2014,each=33)) # convert to data frame
 pland.data$GRASS_3km<-scale(pland.data$PLAND, center = TRUE, scale = TRUE) # scale and center data
 
-pland <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size sites x years
+pland <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size routes x years
 for(k in 1:(length(pland[1,]))){ # fill matrix with values from data frame
   sel.rows <- pland.data$Year == k+1976
   pland[,k] <- as.matrix(pland.data)[sel.rows,2]
@@ -185,17 +185,17 @@ ed.1=9999 # create 9999 placeholder
 
 for(j in 1:38){
   sub.idx=subset(ed.ini,ed.ini$Year==j+1976) # subset years to 1977-2014
-  sub.order=sub.idx[order(sub.idx$Route),] # order by site
-  ed.idx[sub.order$Site]=sub.order$ED # insert % grass values
+  sub.order=sub.idx[order(sub.idx$Route),] # order by route
+  ed.idx[sub.order$route]=sub.order$ED # insert % grass values
   ed.1=c(ed.1,ed.idx) # add year's % grass values as a column to the matrix
   ed.idx=rep(NA,33) # reset to empty vector
 }
 ed.1=ed.1[-1] # drop initial 9999 placeholder
 
-ed.data=data.frame(site=rep(seq(1,33),38),ED=ed.1,Year=rep(1977:2014,each=33)) # convert to data frame
+ed.data=data.frame(route=rep(seq(1,33),38),ED=ed.1,Year=rep(1977:2014,each=33)) # convert to data frame
 ed.data$ED<-scale(ed.data$ED, center = TRUE, scale = TRUE) # scale and center data
 
-ed <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size sites x years
+ed <- matrix(NA,nrow=33,ncol=38) # create empty matrix of size routes x years
 for(k in 1:(length(ed[1,]))){ # fill matrix with values from data frame
   sel.rows <- ed.data$Year == k+1976
   ed[,k] <- as.matrix(ed.data)[sel.rows,2]
