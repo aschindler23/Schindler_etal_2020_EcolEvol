@@ -1,0 +1,90 @@
+# This software has been approved for release by the U.S. Geological Survey (USGS). Although the software has been subjected to rigorous review, the USGS reserves the right 
+# to update the software as needed pursuant to further analysis and review. No warranty, expressed or implied, is made by the USGS or the U.S. Government as to the 
+# functionality of the software and related material nor shall the fact of release constitute any such warranty. Furthermore, the software is released on condition that 
+# neither the USGS nor the U.S. Government shall be held liable for any damages resulting from its authorized or unauthorized use.
+
+### Piece-wise threshold model for Lesser Prairie-Chicken abundance ###
+
+model{
+  ## Priors
+
+  for(i in 1:nroute){ #loop over routes
+    for(t in 1:nyear){ #loop over years
+      eps.mu[i,t] ~ dnorm(0,tau.mu) #random effect for abundance
+  }}
+  tau.mu <- 1/(sd.mu*sd.mu)
+  sd.mu ~ dgamma(5,1)
+    
+  for(t in 1:nyear){ #loop over years
+    beta.p[t] ~ dnorm(0,tau.p) #random intercept for p
+  }
+  tau.p <- 1/(sd.p*sd.p)
+  sd.p ~ dgamma(5,1)
+    
+  over ~ dgamma(1,1) #overdispersion parameter
+
+  beta0 ~ dnorm(0,0.1) #intercept for abundance
+  beta1 ~ dnorm(0,0.1) #PDSI covariate effect
+  beta2 ~ dnorm(0,0.1) #PCP covariate effect
+  beta3 ~ dnorm(0,0.1) #TMAX covariate effect
+  beta4 ~ dnorm(0,0.1) #TMIN covariate effect
+  beta5 ~ dnorm(0,0.1) #GRASS/ED covariate effect
+
+  delta ~ dnorm(0,0.1) #intensification parameter
+  phi ~ dunif(l,u) #threshold parameter 
+  #(l = minimum GRASS/ED value observed, u = maximum GRASS/ED value observed)
+    
+  ## Likelihood for true abundance
+
+  for(i in 1:nroute){ #loop over routes
+    for(t in 1:nyear){ #loop over years
+      N[i,t] ~ dnegbin(s[i,t],over)T(,20000) #latent abundance state
+
+      s[i,t] <- over/(over+mu[i,t]) #derive s parameter
+      v[i,t] <- over*(1-s[i,t])/(s[i,t]*s[i,t]) #derive variance
+  }
+
+      log(mu[i,1]) <- beta0 + beta1*pdsi0[i] + 
+        beta2*pcp[i,1] + beta3*tmax0[i] + beta4*tmin[i,1] + 
+        (beta5+delta*step(pland[i,1]-phi))*(pland[i,1]-phi) +
+        eps.mu[i,1] #process model for year 1, where pdsi0 and tmax0 are the pdsi and tmax values for the summer preceding the first year of survey data
+
+    for(t in 2:nyear){ #loop over years beginning in year 2
+      log(mu[i,t]) <- beta0 + beta1*pdsi[i,t-1] + 
+        beta2*pcp[i,t] + beta3*tmax[i,t-1] + beta4*tmin[i,t] + 
+        (beta5+delta*step(pland[i,t]-phi))*(pland[i,t]-phi) +
+        eps.mu[i,t] 
+  }
+
+  ##Observation model for replicated counts
+
+    for(t in 1:nyear){ #loop over years
+      for(j in 1:nvisit){ #loop over temporal reps (2)
+        y[i,j,t] ~ dbin(p[i,j,t],N[i,t])
+        logit(p[i,j,t]) <- lp[i,j,t]
+        lp[i,j,t] ~ dnorm(beta.p[t],tau.p) #detection model
+  }}}
+
+  ##Residuals and fit stats
+
+  for(i in 1:nroute){ #loop over routes
+    for(j in 1:nvisit){ #loop over temporal reps (2)
+      for(t in 1:nyear){ #loop over years
+        eval[i,j,t]<-p[i,j,t]*N[i,t]
+        E[i,j,t]<-pow((y[i,j,t]-eval[i,j,t]),2)/(eval[i,j,t]+0.5)
+        # Generate replicate data and compute fit stats for them
+        y.new[i,j,t] ~ dbin(p[i,j,t],N[i,t])
+        E.new[i,j,t] <- pow((y.new[i,j,t]-eval[i,j,t]),2)/(eval[i,j,t]+0.5)
+  }}}
+    
+  ##derived quantities for abundance and residuals
+
+  for(t in 1:nyear){
+    totalN[t] <- sum(N[,t])
+  }
+
+  fit <-sum(E[,,])
+  fit.new <-sum(E.new[,,])
+
+}
+    
