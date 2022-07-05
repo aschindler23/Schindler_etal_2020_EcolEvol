@@ -28,6 +28,8 @@ These files contain count data collected for greater prairie-chickens (GRPC), le
 - NOBO_environmental_data.csv
 - RNEP_environmental_data.csv
 
+These files contain the landscape metrics and weather data for greater prairie-chicken (GRPC), lesser prairie-chicken (LEPC), northern bobwhite (NOBO), and ring-necked pheasant (RNEP) routes used in analyses.
+
 ### Coumn names:
 - Year: Year of landscape metric or weather data
 - Route: Unique ID for each survey route
