@@ -6,6 +6,10 @@ Schindler, A. R., D. A. Haukos, C. A. Hagen, B. E. Ross. (2021). A multi-species
 
 Code/Data DOI: https://doi.org/10.5061/dryad.c59zw3r5w
 
+All analyses were completed using R. See manuscript for details about analyses and supplementary data for example code.
+
+Please contact the corresponding author with questions about this data package or to seek potential collaborations using these data.
+
 # Description
 
 To run the models described in the manuscript, use the R code with the corresponding species code:
