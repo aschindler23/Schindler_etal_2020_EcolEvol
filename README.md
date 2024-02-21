@@ -2,7 +2,7 @@
 
 This repository contains the data and code used in the following publication:
 
-Schindler, A. R., D. A. Haukos, C. A. Hagen, B. E. Ross. (2021). A multi-species approach to manage effects of land cover and weather on upland game birds. Ecology and Evolution 10(24):14330-14345. https://doi.org/10.1002/ece3.7034.
+Schindler, A. R., D. A. Haukos, C. A. Hagen, B. E. Ross. (2021). A multi-species approach to manage effects of land cover and weather on upland game birds. *Ecology and Evolution*, **10**(24):14330-14345. https://doi.org/10.1002/ece3.7034.
 
 Code/Data DOI: https://doi.org/10.5061/dryad.c59zw3r5w
 
